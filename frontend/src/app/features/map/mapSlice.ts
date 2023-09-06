@@ -6,10 +6,16 @@ type Coords = {
   longitude: number;
 };
 
+type UserData = {
+  id: string;
+  username: string;
+  coords: Coords;
+};
+
 type MapState = {
   myLocation: null | Coords;
   isLocationError: boolean;
-  onlineUsers: [];
+  onlineUsers: UserData[];
   cardChosenOptions: null | [];
 };
 
@@ -31,8 +37,11 @@ export const mapSlice = createSlice({
     setIsLocationError: (state, action: PayloadAction<boolean>) => {
       state.isLocationError = action.payload;
     },
+    setOnlineUsers: (state, action: PayloadAction<UserData[]>) => {
+      state.onlineUsers = action.payload;
+    },
   },
 });
 
-export const { setMyLocation, setIsLocationError } = mapSlice.actions;
+export const { setMyLocation, setIsLocationError, setOnlineUsers } = mapSlice.actions;
 export default mapSlice.reducer;

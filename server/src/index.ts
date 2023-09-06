@@ -2,6 +2,25 @@ import Fastify from 'fastify';
 import fastifyIO from "fastify-socket.io";
 import cors from '@fastify/cors';
 
+import type { Socket } from 'socket.io';
+
+type Coords = {
+  longitude: number;
+  latitude: number;
+}
+
+type UserData = {
+  id: string;
+  username: string;
+  coords: Coords;
+}
+
+type Users = {
+  [socketId: string]: UserData;
+}
+
+const onlineUsers: Users = {};
+
 const { default: socketioServer } = fastifyIO;
 
 const fastify = Fastify({
@@ -23,7 +42,21 @@ fastify.get('/', async (request, reply) => {
 
 
 function disconnecEventHandler(socketId: string) {
-  console.log(`User disconnected of the id ${socketId}`);
+  delete onlineUsers[socketId];
+
+  fastify.io.to('online-users').emit('online-users', convertOnlineUsersToArray());
+}
+
+function convertOnlineUsersToArray() {
+  return Object.values(onlineUsers);
+}
+
+function loginEventHandler(socket: Socket, data: UserData) {
+  socket.join('online-users');
+
+  onlineUsers[socket.id] = { ...data, id: socket.id };
+
+  fastify.io.to('online-users').emit('online-users', convertOnlineUsersToArray());
 }
 
 fastify.ready().then(() => {
@@ -31,7 +64,11 @@ fastify.ready().then(() => {
   fastify.io.on("connection", (socket) => {
     console.log(`User connected of the id: ${socket.id}`);
 
-    socket.on('disconnect', (reason) => {
+    socket.on('user-login', (data: UserData) => {
+      loginEventHandler(socket, data);
+    })
+
+    socket.on('disconnect', () => {
       disconnecEventHandler(socket.id);
     });
   });
