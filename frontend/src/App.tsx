@@ -2,9 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage";
 import MapPage from "./pages/MapPage";
-import "./App.css";
+import useGeolocation from "./hooks/useGeolocation";
 
 function App() {
+  useGeolocation();
+
   return (
     <Router>
       <Routes>
