@@ -1,9 +1,7 @@
-import { useAppSelector } from "../app/hooks";
+import Map from "../components/Map";
 
 const MapPage = () => {
-  const onlineUsers = useAppSelector((store) => store.map.onlineUsers);
-
-  return <div>MapPage</div>;
+  return <Map />;
 };
 
 export default MapPage;

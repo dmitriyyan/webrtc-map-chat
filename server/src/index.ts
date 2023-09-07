@@ -71,6 +71,8 @@ fastify.ready().then(() => {
     socket.on('disconnect', () => {
       disconnecEventHandler(socket.id);
     });
+
+    socket.emit('get-id', socket.id);
   });
 });
 

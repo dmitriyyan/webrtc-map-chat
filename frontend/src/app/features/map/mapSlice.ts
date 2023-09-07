@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-type Coords = {
-  latitude: number;
+export type Coords = {
   longitude: number;
+  latitude: number;
 };
 
-type UserData = {
+export type UserData = {
   id: string;
   username: string;
   coords: Coords;
@@ -16,13 +16,13 @@ type MapState = {
   myLocation: null | Coords;
   isLocationError: boolean;
   onlineUsers: UserData[];
-  cardChosenOptions: null | [];
+  cardChosenOption: null | UserData;
 };
 
 const initialState: MapState = {
   myLocation: null,
   onlineUsers: [],
-  cardChosenOptions: null,
+  cardChosenOption: null,
   isLocationError: false,
 };
 
@@ -40,8 +40,16 @@ export const mapSlice = createSlice({
     setOnlineUsers: (state, action: PayloadAction<UserData[]>) => {
       state.onlineUsers = action.payload;
     },
+    setCardChosenOption: (state, action: PayloadAction<UserData | null>) => {
+      state.cardChosenOption = action.payload;
+    },
   },
 });
 
-export const { setMyLocation, setIsLocationError, setOnlineUsers } = mapSlice.actions;
+export const {
+  setMyLocation,
+  setIsLocationError,
+  setOnlineUsers,
+  setCardChosenOption,
+} = mapSlice.actions;
 export default mapSlice.reducer;

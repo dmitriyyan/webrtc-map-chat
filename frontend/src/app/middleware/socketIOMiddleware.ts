@@ -2,7 +2,9 @@ import { io, Socket } from "socket.io-client";
 import type { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
 
 import type { AppDispatch, RootState } from "../store";
-import { login } from "../features/user/userSlice";
+import type { UserData } from "../features/map/mapSlice";
+
+import { login, setId } from "../features/user/userSlice";
 import { setOnlineUsers } from "../features/map/mapSlice";
 
 const socketIOMiddleware: Middleware = (
@@ -18,7 +20,11 @@ const socketIOMiddleware: Middleware = (
       console.log("Connected to socket.io server");
     });
 
-    socket.on("online-users", (data) => {
+    socket.on("get-id", (data: string) => {
+      store.dispatch(setId(data));
+    });
+
+    socket.on("online-users", (data: UserData[]) => {
       store.dispatch(setOnlineUsers(data));
     });
 
