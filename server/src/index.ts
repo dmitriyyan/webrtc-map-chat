@@ -1,8 +1,17 @@
 import Fastify from 'fastify';
 import fastifyIO from "fastify-socket.io";
 import cors from '@fastify/cors';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import type { Socket } from 'socket.io';
+
+dotenv.config({ path: '.env.local', override: true });
 
 type Coords = {
   longitude: number;
@@ -24,7 +33,11 @@ const onlineUsers: Users = {};
 const { default: socketioServer } = fastifyIO;
 
 const fastify = Fastify({
-  logger: true
+  logger: true,
+    https: {
+      key: fs.readFileSync(path.join(__dirname, '..', 'key.pem')),
+      cert: fs.readFileSync(path.join(__dirname, '..', 'cert.pem'))
+    }
 });
 
 await fastify.register(socketioServer, {
@@ -78,7 +91,7 @@ fastify.ready().then(() => {
 
 const start = async () => {
   try {
-    const address = await fastify.listen({ port: 3000 });
+    const address = await fastify.listen({ port: Number(process.env.PORT) || 3000, host: process.env.HOST || 'localhost' });
     console.log(`Server is running on ${address}`);
   } catch (err) {
     fastify.log.error(err);

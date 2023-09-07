@@ -1,6 +1,12 @@
 .map_page_container {
   height: 100vh;
   width: 100%;
+  position: fixed;
+}
+
+.map_container {
+  height: 100%;
+  width: 100%;
 }
 
 .map_page_marker_text {

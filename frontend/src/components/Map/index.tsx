@@ -34,26 +34,31 @@ const Map = () => {
   }
 
   return (
-    <MapContainer
-      className="map_page_container"
-      center={formatMapCoords(location)}
-      zoom={location ? 15 : 4}
-      minZoom={3}
-      scrollWheelZoom={true}
-      ref={mapRef}
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <MarkerClusterGroup chunkedLoading zoomToBoundsOnClick spiderfyOnMaxZoom>
-        {onlineUsers.map((onlineUser) => {
-          return (
-            <Marker
-              key={onlineUser.id}
-              {...onlineUser}
-              isMe={userId === onlineUser.id}
-            />
-          );
-        })}
-      </MarkerClusterGroup>
+    <div className="map_page_container">
+      <MapContainer
+        center={formatMapCoords(location)}
+        zoom={location ? 15 : 4}
+        minZoom={3}
+        ref={mapRef}
+        className="map_container"
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MarkerClusterGroup
+          chunkedLoading
+          zoomToBoundsOnClick
+          spiderfyOnMaxZoom
+        >
+          {onlineUsers.map((onlineUser) => {
+            return (
+              <Marker
+                key={onlineUser.id}
+                {...onlineUser}
+                isMe={userId === onlineUser.id}
+              />
+            );
+          })}
+        </MarkerClusterGroup>
+      </MapContainer>
       {cardChosenOption && location && (
         <UserInfoCard
           id={cardChosenOption.id}
@@ -62,7 +67,7 @@ const Map = () => {
           myLocation={location}
         />
       )}
-    </MapContainer>
+    </div>
   );
 };
 
