@@ -1,1 +1,1 @@
-# webrtc-gmap-chat
+# webrtc-map-chat
