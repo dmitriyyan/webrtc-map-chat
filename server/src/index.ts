@@ -34,7 +34,23 @@ type Message = {
   content: string;
 }
 
+type Participant = {
+  id: string;
+  username: string;
+  peerId: string;
+}
+
+type VideoChat = {
+  id: string;
+  participants: Participant[]
+}
+
+type VideoChats = {
+  [id: string]: VideoChat;
+}
+
 const onlineUsers: Users = {};
+const videoChats: VideoChats = {}
 
 const { default: socketioServer } = fastifyIO;
 
@@ -65,11 +81,12 @@ fastify.get('/', async (request, reply) => {
 function disconnecEventHandler(socketId: string) {
   delete onlineUsers[socketId];
 
-  fastify.io.to('online-users').emit('online-users', convertOnlineUsersToArray());
+  fastify.io.to('online-users').emit('online-users', convertToArray(onlineUsers));
 }
 
-function convertOnlineUsersToArray() {
-  return Object.values(onlineUsers);
+
+function convertToArray(obj: object) {
+  return Object.values(obj);
 }
 
 function loginEventHandler(socket: Socket, data: UserData) {
@@ -77,7 +94,7 @@ function loginEventHandler(socket: Socket, data: UserData) {
 
   onlineUsers[socket.id] = { ...data, id: socket.id };
 
-  fastify.io.to('online-users').emit('online-users', convertOnlineUsersToArray());
+  fastify.io.to('online-users').emit('online-users', convertToArray(onlineUsers));
 }
 
 function chatMessageHandler(data: Message) {
@@ -86,8 +103,18 @@ function chatMessageHandler(data: Message) {
   }
 }
 
+function createVideoChatHandler(socket: Socket, data: {peerId: string, id: string}) {
+  videoChats[data.id] = {
+    id: data.id,
+    participants: [
+      { id: socket.id, peerId: data.peerId, username: onlineUsers[socket.id].username }
+    ]
+  }
+
+  fastify.io.emit('video-chats', convertToArray(videoChats));
+}
+
 fastify.ready().then(() => {
-  // we need to wait for the server to be ready, else `server.io` is undefined
   fastify.io.on("connection", (socket) => {
     console.log(`User connected of the id: ${socket.id}`);
 
@@ -95,9 +122,8 @@ fastify.ready().then(() => {
       loginEventHandler(socket, data);
     })
 
-    socket.on('chat-message', (data: Message) => {
-      chatMessageHandler(data);
-    })
+    socket.on('chat-message', chatMessageHandler);
+    socket.on("create-videochat", (data: {peerId: string, id: string}) => createVideoChatHandler(socket, data));
 
     socket.on('disconnect', () => {
       disconnecEventHandler(socket.id);
