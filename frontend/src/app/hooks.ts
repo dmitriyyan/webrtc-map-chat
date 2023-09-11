@@ -9,6 +9,11 @@ import {
   setCardChosenOption,
 } from "./features/map/mapSlice";
 import { login, setId } from "./features/user/userSlice";
+import {
+  addChatbox,
+  removeChatbox,
+  sendChatMessage,
+} from "./features/messenger/messengerSlice";
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -19,6 +24,9 @@ const actions = {
   setCardChosenOption,
   login,
   setId,
+  addChatbox,
+  removeChatbox,
+  sendChatMessage,
 };
 
 export const useAppActions = () => {

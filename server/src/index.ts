@@ -28,6 +28,12 @@ type Users = {
   [socketId: string]: UserData;
 }
 
+type Message = {
+  id: string;
+  receiverId: string;
+  content: string;
+}
+
 const onlineUsers: Users = {};
 
 const { default: socketioServer } = fastifyIO;
@@ -40,14 +46,16 @@ const fastify = Fastify({
     }
 });
 
+await fastify.register(cors, {
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+});
 await fastify.register(socketioServer, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
-  }
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  },
 });
-
-await fastify.register(cors);
 
 fastify.get('/', async (request, reply) => {
   fastify.io.emit("hello");``
@@ -72,6 +80,12 @@ function loginEventHandler(socket: Socket, data: UserData) {
   fastify.io.to('online-users').emit('online-users', convertOnlineUsersToArray());
 }
 
+function chatMessageHandler(data: Message) {
+  if (onlineUsers[data.receiverId]) {
+    fastify.io.to(data.receiverId).emit('chat-message', data);
+  }
+}
+
 fastify.ready().then(() => {
   // we need to wait for the server to be ready, else `server.io` is undefined
   fastify.io.on("connection", (socket) => {
@@ -79,6 +93,10 @@ fastify.ready().then(() => {
 
     socket.on('user-login', (data: UserData) => {
       loginEventHandler(socket, data);
+    })
+
+    socket.on('chat-message', (data: Message) => {
+      chatMessageHandler(data);
     })
 
     socket.on('disconnect', () => {

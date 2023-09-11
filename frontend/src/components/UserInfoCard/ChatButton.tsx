@@ -1,3 +1,4 @@
+import { useAppActions } from "../../app/hooks";
 import ChatIcon from "./chat-icon.svg";
 
 type Props = {
@@ -6,8 +7,10 @@ type Props = {
 };
 
 const ChatButton = ({ id, username }: Props) => {
+  const { addChatbox } = useAppActions();
+
   const handleAddChatbox = () => {
-    console.log(id, username);
+    addChatbox({ id, username });
   };
 
   return (

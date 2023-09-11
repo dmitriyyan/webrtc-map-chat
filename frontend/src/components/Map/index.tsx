@@ -11,6 +11,7 @@ import UserInfoCard from "../UserInfoCard";
 
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
+import Messenger from "../Messenger/Messenger";
 
 const Map = () => {
   const userId = useAppSelector((store) => store.user.id);
@@ -59,6 +60,7 @@ const Map = () => {
           })}
         </MarkerClusterGroup>
       </MapContainer>
+      <Messenger />
       {cardChosenOption && location && (
         <UserInfoCard
           id={cardChosenOption.id}
