@@ -14,6 +14,16 @@ import {
   removeChatbox,
   sendChatMessage,
 } from "./features/messenger/messengerSlice";
+import {
+  setInVideoChat,
+  setVideChats,
+  createVideoChat,
+  joinVideoChat,
+  leaveVideoChat,
+  setIsMicOn,
+  setIsCameraOn,
+  setRemoteStream,
+} from "./features/videoChat/videoChatSlice";
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
@@ -27,6 +37,14 @@ const actions = {
   addChatbox,
   removeChatbox,
   sendChatMessage,
+  setInVideoChat,
+  setVideChats,
+  createVideoChat,
+  joinVideoChat,
+  leaveVideoChat,
+  setIsMicOn,
+  setIsCameraOn,
+  setRemoteStream,
 };
 
 export const useAppActions = () => {

@@ -26,6 +26,7 @@
   right: 45px;
   display: flex;
   flex-direction: row-reverse;
+  z-index: 1000;
 }
 
 .map_page_v_rooms_join_button {
@@ -37,6 +38,7 @@
   font-size: 24px;
   border: none;
   transition: 0.3s;
+  cursor: pointer;
 }
 
 .map_page_v_rooms_join_button:hover {
@@ -55,6 +57,7 @@
   bottom: 150px;
   width: 250px;
   align-items: flex-end;
+  z-index: 1000;
 }
 
 .map_page_v_rooms_video_container {
@@ -67,6 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .m_page_v_rooms_video_buttons_container {

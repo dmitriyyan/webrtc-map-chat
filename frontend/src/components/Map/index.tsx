@@ -11,7 +11,8 @@ import UserInfoCard from "../UserInfoCard";
 
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
-import Messenger from "../Messenger/Messenger";
+import Messenger from "../Messenger";
+import VideoChat from "../VideoChat";
 
 const Map = () => {
   const userId = useAppSelector((store) => store.user.id);
@@ -61,6 +62,7 @@ const Map = () => {
         </MarkerClusterGroup>
       </MapContainer>
       <Messenger />
+      <VideoChat />
       {cardChosenOption && location && (
         <UserInfoCard
           id={cardChosenOption.id}

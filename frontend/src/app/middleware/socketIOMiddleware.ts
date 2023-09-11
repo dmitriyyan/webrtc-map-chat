@@ -11,7 +11,13 @@ import {
   getChatMessage,
   addChatbox,
 } from "../features/messenger/messengerSlice";
+import {
+  createVideoChat,
+  setInVideoChat,
+  setVideChats,
+} from "../features/videoChat/videoChatSlice";
 import type { Message } from "../features/messenger/messengerSlice";
+import type { VideoChat } from "../features/videoChat/videoChatSlice";
 
 const socketIOMiddleware: Middleware = (
   store: MiddlewareAPI<AppDispatch, RootState>,
@@ -50,6 +56,10 @@ const socketIOMiddleware: Middleware = (
           }),
         );
       });
+
+      socket.on("video-chats", (data: VideoChat[]) => {
+        store.dispatch(setVideChats(data));
+      });
     }
 
     if (login.match(action)) {
@@ -63,6 +73,14 @@ const socketIOMiddleware: Middleware = (
 
     if (sendChatMessage.match(action)) {
       socket.emit("chat-message", action.payload);
+    }
+
+    if (createVideoChat.match(action)) {
+      store.dispatch(setInVideoChat(action.payload.id));
+      socket.emit("create-videochat", {
+        peerId: 1,
+        id: action.payload.id,
+      });
     }
 
     next(action);
