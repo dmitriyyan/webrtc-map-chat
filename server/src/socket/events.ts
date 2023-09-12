@@ -1,0 +1,12 @@
+export const CONNECTION = "connection";
+export const DISCONNECT = "disconnect";
+export const USER_LOGIN = "user-login";
+export const CHAT_MESSAGE = "chat-message";
+export const CREATE_VIDEOCHAT = "create-videochat";
+export const JOIN_VIDEOCHAT = "join-videochat";
+export const LEAVE_VIDEOCHAT = "leave-videochat";
+export const GET_ID = "get-id";
+export const ONLINE_USERS = "online-users";
+export const VIDEOCHATS = "video-chats";
+export const VIDEOCHAT_INIT = "videochat-init";
+export const VIDEOCHAT_DISCONNECT = "videochat-disconnect";
