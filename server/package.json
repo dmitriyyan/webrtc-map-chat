@@ -23,6 +23,7 @@
     "@fastify/cors": "^8.3.0",
     "dotenv": "^16.3.1",
     "fastify": "^4.22.2",
-    "fastify-socket.io": "^4.0.0"
+    "fastify-socket.io": "^4.0.0",
+    "peer": "^1.0.1"
   }
 }

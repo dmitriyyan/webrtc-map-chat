@@ -2,10 +2,10 @@ import { useRef, useEffect } from "react";
 
 type Props = {
   stream: MediaStream | null;
-  muted: boolean;
+  muted?: boolean;
 };
 
-const Video = ({ stream, muted }: Props) => {
+const Video = ({ stream, muted = false }: Props) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {

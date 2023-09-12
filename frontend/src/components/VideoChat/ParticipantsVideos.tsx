@@ -1,33 +1,46 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useAppSelector } from "../../app/hooks";
-import { getUserLocalStream } from "../../utils/rtcUtils";
 import Video from "./Video";
-import VideoRoomButtons from "./VideoRoomButtons";
+import VideoRoomButtons from "./VideoChatButtons";
+import {
+  getRemoteMediaStream,
+  getUserLocalStream,
+} from "../../app/middleware/peerjsMiddleware";
 
 const ParticipantsVideos = () => {
   const inChat = useAppSelector((state) => state.videoChat.inChat);
-  // const remoteStream = useAppSelector((state) => state.videoChat.remoteStream);
+  const isRemoteStreamReady = useAppSelector(
+    (state) => state.videoChat.isRemoteStreamReady,
+  );
 
-  const localStreamRef = useRef<MediaStream | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
-    const setLocalStream = async () => {
-      localStreamRef.current = await getUserLocalStream();
+    const updateLocalStream = async () => {
+      const mediaStream = await getUserLocalStream();
+      setLocalStream(mediaStream);
     };
-
     if (inChat) {
-      setLocalStream();
+      updateLocalStream();
     }
   }, [inChat]);
+
+  useEffect(() => {
+    if (inChat && isRemoteStreamReady) {
+      const mediaStream = getRemoteMediaStream();
+      setRemoteStream(mediaStream);
+    }
+  }, [inChat, isRemoteStreamReady]);
 
   return (
     <div className="map_page_v_rooms_videos_container">
       {inChat && <VideoRoomButtons inChat={inChat} />}
-      {inChat && localStreamRef.current && (
-        <Video stream={localStreamRef.current} muted />
+      {inChat && localStream && <Video stream={localStream} muted />}
+      {inChat && isRemoteStreamReady && remoteStream && (
+        <Video stream={remoteStream} />
       )}
-      {/* {inChat && remoteStream && <Video stream={remoteStream} muted />} */}
     </div>
   );
 };

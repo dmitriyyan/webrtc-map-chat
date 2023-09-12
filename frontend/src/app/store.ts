@@ -5,6 +5,7 @@ import messengerReducer from "./features/messenger/messengerSlice";
 import videoChatReducer from "./features/videoChat/videoChatSlice";
 
 import socketIOMiddleware from "./middleware/socketIOMiddleware";
+import peerjsMiddleware from "./middleware/peerjsMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +15,10 @@ export const store = configureStore({
     videoChat: videoChatReducer,
   },
   middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware().concat([socketIOMiddleware]);
+    return getDefaultMiddleware().concat([
+      socketIOMiddleware,
+      peerjsMiddleware,
+    ]);
   },
 });
 

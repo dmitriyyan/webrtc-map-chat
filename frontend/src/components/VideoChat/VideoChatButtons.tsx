@@ -6,7 +6,7 @@ import micIcon from "./mic-icon.svg";
 import micOffIcon from "./mic-off-icon.svg";
 import cameraIcon from "./camera-icon.svg";
 import cameraOffIcon from "./camera-off-icon.svg";
-import { getUserLocalStream } from "../../utils/rtcUtils";
+import { getUserLocalStream } from "../../app/middleware/peerjsMiddleware";
 
 type Props = {
   inChat: string;

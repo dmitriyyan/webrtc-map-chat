@@ -1,5 +1,5 @@
 import CreateRoomButton from "./CreateRoomButton";
-import RoomJoinButton from "./RoomJoinButton";
+import RoomJoinButton from "./ChatJoinButton";
 import ParticipantsVideos from "./ParticipantsVideos";
 import { useAppSelector } from "../../app/hooks";
 

@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import fastifyIO from "fastify-socket.io";
+import { PeerServer } from 'peer';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
 import fs from 'fs';
@@ -54,6 +55,19 @@ const videoChats: VideoChats = {}
 
 const { default: socketioServer } = fastifyIO;
 
+const peerServer = PeerServer({
+  host: process.env.HOST || 'localhost',
+  port: Number(process.env.SIGNAL_PORT) || 9000,
+  path: process.env.SIGNAL_PATH || '/peer',
+  ssl: {
+      key: fs.readFileSync(path.join(__dirname, '..', 'key.pem')).toString(),
+      cert: fs.readFileSync(path.join(__dirname, '..', 'cert.pem')).toString()
+  },
+  corsOptions: {
+    origin: '*',
+  }
+})
+
 const fastify = Fastify({
   logger: true,
     https: {
@@ -78,9 +92,27 @@ fastify.get('/', async (request, reply) => {
 });
 
 
-function disconnecEventHandler(socketId: string) {
-  delete onlineUsers[socketId];
+function disconnecEventHandler(socket: Socket) {
+  Object.entries(videoChats).forEach(([key, value]) => {
+    const participant = value.participants.find(p => p.id === socket.id);
+    if (participant) {
+      videoChats[key].participants = videoChats[key].participants.filter(p => p.id !== socket.id);
+      if (videoChats[key].participants.length > 0) {
+          videoChats[key].participants.forEach(p => {
+            socket.to(p.id).emit('videochat-disconnect');
+          });
+      }
 
+      if (videoChats[key].participants.length < 1) {
+          delete videoChats[key];
+      }
+
+      fastify.io.to('online-users').emit('video-chats', convertToArray(videoChats));
+    }
+  });
+
+
+  delete onlineUsers[socket.id];
   fastify.io.to('online-users').emit('online-users', convertToArray(onlineUsers));
 }
 
@@ -95,6 +127,7 @@ function loginEventHandler(socket: Socket, data: UserData) {
   onlineUsers[socket.id] = { ...data, id: socket.id };
 
   fastify.io.to('online-users').emit('online-users', convertToArray(onlineUsers));
+  fastify.io.to('online-users').emit('video-chats', convertToArray(videoChats));
 }
 
 function chatMessageHandler(data: Message) {
@@ -111,7 +144,42 @@ function createVideoChatHandler(socket: Socket, data: {peerId: string, id: strin
     ]
   }
 
-  fastify.io.emit('video-chats', convertToArray(videoChats));
+  fastify.io.to('online-users').emit('video-chats', convertToArray(videoChats));
+}
+
+function joinVideoChatHandler(socket: Socket, data: { peerId: string, id: string }) {
+  if (videoChats[data.id]) {
+    videoChats[data.id].participants.forEach(participant => {
+      socket.to(participant.id).emit('videochat-init', { peerId: data.peerId });
+    });
+
+    videoChats[data.id].participants.push({
+      id: socket.id,
+      username: onlineUsers[socket.id].username,
+      peerId: data.peerId,
+    })
+
+    fastify.io.to('online-users').emit('video-chats', convertToArray(videoChats));
+  }
+}
+
+function leaveVideoChatHandler(socket: Socket, data: { id: string }) {
+  if (videoChats[data.id]) {
+    videoChats[data.id].participants = videoChats[data.id].participants.filter(participant => participant.id !== socket.id);
+
+    if (videoChats[data.id].participants.length > 0) {
+      videoChats[data.id].participants.forEach(participant => {
+        socket.to(participant.id).emit('videochat-disconnect');
+      });
+    }
+
+    if (videoChats[data.id].participants.length < 1) {
+      delete videoChats[data.id];
+    }
+
+    fastify.io.to('online-users').emit('video-chats', convertToArray(videoChats));
+  }
+
 }
 
 fastify.ready().then(() => {
@@ -123,10 +191,12 @@ fastify.ready().then(() => {
     })
 
     socket.on('chat-message', chatMessageHandler);
-    socket.on("create-videochat", (data: {peerId: string, id: string}) => createVideoChatHandler(socket, data));
+    socket.on("create-videochat", (data: { peerId: string, id: string }) => createVideoChatHandler(socket, data));
+    socket.on('join-videochat', (data: { peerId: string, id: string }) => joinVideoChatHandler(socket, data));
+    socket.on('leave-videochat', (data: { id: string }) => leaveVideoChatHandler(socket, data));
 
     socket.on('disconnect', () => {
-      disconnecEventHandler(socket.id);
+      disconnecEventHandler(socket);
     });
 
     socket.emit('get-id', socket.id);

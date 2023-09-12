@@ -15,14 +15,12 @@ import {
   sendChatMessage,
 } from "./features/messenger/messengerSlice";
 import {
-  setInVideoChat,
-  setVideChats,
+  setVideoChats,
   createVideoChat,
   joinVideoChat,
   leaveVideoChat,
   setIsMicOn,
   setIsCameraOn,
-  setRemoteStream,
 } from "./features/videoChat/videoChatSlice";
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
@@ -37,14 +35,12 @@ const actions = {
   addChatbox,
   removeChatbox,
   sendChatMessage,
-  setInVideoChat,
-  setVideChats,
+  setVideoChats,
   createVideoChat,
   joinVideoChat,
   leaveVideoChat,
   setIsMicOn,
   setIsCameraOn,
-  setRemoteStream,
 };
 
 export const useAppActions = () => {

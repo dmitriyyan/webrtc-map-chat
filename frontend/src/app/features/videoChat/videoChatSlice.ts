@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createAction, createSlice } from "@reduxjs/toolkit";
 import { UserData } from "../map/mapSlice";
 
 type Participant = Omit<UserData, "coords"> & {
@@ -15,7 +15,7 @@ type State = {
   chats: VideoChat[];
   isMicOn: boolean;
   isCameraOn: boolean;
-  remoteStream: MediaProvider | null;
+  isRemoteStreamReady: boolean;
 };
 
 const initialState: State = {
@@ -23,41 +23,50 @@ const initialState: State = {
   chats: [],
   isMicOn: false,
   isCameraOn: false,
-  remoteStream: null,
+  isRemoteStreamReady: false,
 };
+
+export const createVideoChat = createAction<{ id: string; peerId: string }>(
+  "createVideoChat",
+);
+
+export const joinVideoChat = createAction<{ id: string; peerId: string }>(
+  "joinVideoChat",
+);
+
+export const call = createAction<{ peerId: string }>("call");
+
+export const leaveVideoChat = createAction<string>("leaveVideoChat");
+
+export const videoChatDisconnect = createAction("videoChatDisconnect");
 
 export const videoChatSlice = createSlice({
   name: "videoChat",
   initialState,
   reducers: {
-    setInVideoChat: (state, action: PayloadAction<string>) => {
+    setInVideoChat: (state, action: PayloadAction<string | null>) => {
       state.inChat = action.payload;
     },
-    setVideChats: (state, action: PayloadAction<VideoChat[]>) => {
+    setVideoChats: (state, action: PayloadAction<VideoChat[]>) => {
       state.chats = action.payload;
     },
-    createVideoChat: (
-      state,
-      action: PayloadAction<Omit<VideoChat, "participants">>,
-    ) => {},
-    setRemoteStream: (state, action) => {
-      state.remoteStream = action.payload;
+    setIsRemoteStreamReady: (state, action: PayloadAction<boolean>) => {
+      state.isRemoteStreamReady = action.payload;
     },
-    joinVideoChat: (state, aciton) => {},
-    leaveVideoChat: (state, action) => {},
-    setIsMicOn: (state, action) => {},
-    setIsCameraOn: (state, action) => {},
+    setIsMicOn: (state, action: PayloadAction<boolean>) => {
+      state.isMicOn = action.payload;
+    },
+    setIsCameraOn: (state, action: PayloadAction<boolean>) => {
+      state.isCameraOn = action.payload;
+    },
   },
 });
 
 export const {
   setInVideoChat,
-  setVideChats,
-  createVideoChat,
-  joinVideoChat,
-  leaveVideoChat,
+  setVideoChats,
   setIsMicOn,
   setIsCameraOn,
-  setRemoteStream,
+  setIsRemoteStreamReady,
 } = videoChatSlice.actions;
 export default videoChatSlice.reducer;

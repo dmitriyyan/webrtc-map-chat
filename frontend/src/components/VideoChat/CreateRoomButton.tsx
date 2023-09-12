@@ -1,9 +1,11 @@
 import { useAppActions, useAppSelector } from "../../app/hooks";
-import { getUserLocalStream } from "../../utils/rtcUtils";
+import { getUserLocalStream } from "../../app/middleware/peerjsMiddleware";
 import callIcon from "./call-icon.svg";
 
 const CreateRoomButton = () => {
   const inChat = useAppSelector((state) => state.videoChat.inChat);
+  const peerId = useAppSelector((state) => state.user.peerId);
+
   const { createVideoChat } = useAppActions();
 
   const handleRoomCreate = async () => {
@@ -14,7 +16,7 @@ const CreateRoomButton = () => {
     const localMediaStream = await getUserLocalStream();
 
     if (localMediaStream !== null) {
-      createVideoChat({ id: crypto.randomUUID() });
+      createVideoChat({ id: crypto.randomUUID(), peerId });
     }
   };
 

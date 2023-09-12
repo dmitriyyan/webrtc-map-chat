@@ -12,9 +12,13 @@ import {
   addChatbox,
 } from "../features/messenger/messengerSlice";
 import {
+  call,
   createVideoChat,
+  joinVideoChat,
+  leaveVideoChat,
   setInVideoChat,
-  setVideChats,
+  setVideoChats,
+  videoChatDisconnect,
 } from "../features/videoChat/videoChatSlice";
 import type { Message } from "../features/messenger/messengerSlice";
 import type { VideoChat } from "../features/videoChat/videoChatSlice";
@@ -22,7 +26,7 @@ import type { VideoChat } from "../features/videoChat/videoChatSlice";
 const socketIOMiddleware: Middleware = (
   store: MiddlewareAPI<AppDispatch, RootState>,
 ) => {
-  let socket: Socket;
+  let socket: Socket | null;
 
   return (next) => (action) => {
     if (!socket) {
@@ -58,7 +62,15 @@ const socketIOMiddleware: Middleware = (
       });
 
       socket.on("video-chats", (data: VideoChat[]) => {
-        store.dispatch(setVideChats(data));
+        store.dispatch(setVideoChats(data));
+      });
+
+      socket.on("videochat-init", (data: { peerId: string }) => {
+        store.dispatch(call(data));
+      });
+
+      socket.on("videochat-disconnect", () => {
+        store.dispatch(videoChatDisconnect());
       });
     }
 
@@ -77,10 +89,18 @@ const socketIOMiddleware: Middleware = (
 
     if (createVideoChat.match(action)) {
       store.dispatch(setInVideoChat(action.payload.id));
-      socket.emit("create-videochat", {
-        peerId: 1,
-        id: action.payload.id,
-      });
+      socket.emit("create-videochat", action.payload);
+    }
+
+    if (joinVideoChat.match(action)) {
+      store.dispatch(setInVideoChat(action.payload.id));
+      socket.emit("join-videochat", action.payload);
+    }
+
+    if (leaveVideoChat.match(action)) {
+      store.dispatch(setInVideoChat(null));
+      socket.emit("leave-videochat", { id: action.payload });
+      store.dispatch(videoChatDisconnect());
     }
 
     next(action);

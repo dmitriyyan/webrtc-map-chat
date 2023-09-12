@@ -12,6 +12,7 @@ const RoomJoinButton = ({
   amountOfParticipants,
 }: Props) => {
   const inVideoChat = useAppSelector((state) => state.videoChat.inChat);
+  const peerId = useAppSelector((state) => state.user.peerId);
   const { joinVideoChat } = useAppActions();
 
   const handleJoinVideoChat = () => {
@@ -23,7 +24,7 @@ const RoomJoinButton = ({
       return alert("Chat is full");
     }
 
-    joinVideoChat(chatId);
+    joinVideoChat({ id: chatId, peerId });
   };
 
   return (
